@@ -11,7 +11,7 @@ class HashMap
 
   # Returns index of given key, i.e. hash.
   def hash(key)
-    return 'error: only strings are supported' unless key.is_a?(String)
+    return 'Error: only strings are supported.' unless key.is_a?(String)
 
     string_to_number(key)
   end
@@ -28,24 +28,21 @@ class HashMap
 
   # Adds a new value for the key.
   def set(key, value)
-    filled_buckets_percentage = get_filled_buckets_percentage
-    grow_buckets if filled_buckets_percentage >= load_factor
+    filled_percentage = filled_buckets_percentage
+    grow_buckets if filled_percentage >= load_factor
 
-    index = hash(key) % capacity
-    buckets[index].append(value)
+    index = get_index(key)
+
+    buckets[index].append([key, value])
   end
 
-  # rubocop:disable Naming/AccessorMethodName
-
   # Calculates percentage of filled buckets.
-  def get_filled_buckets_percentage
+  def filled_buckets_percentage
     filled_buckets = buckets.filter { |b| !b.empty? }.length
-    p "filled_buckets: #{filled_buckets}"
 
     # divide by 100 at the end to preserve the style of the load factor
     (filled_buckets / capacity.to_f * 100) / 100
   end
-  # rubocop:enable Naming/AccessorMethodName
 
   # Increases the hash map capacity by 2.
   def grow_buckets
@@ -60,5 +57,28 @@ class HashMap
 
     @buckets = new_buckets
     @capacity = buckets.length
+  end
+
+  # Gets the value at the given key.
+  def get(key)
+    index = get_index(key)
+    return nil if buckets[index].empty?
+
+    buckets[index].find_enum { |node| node.value[0] == key }.value[1]
+  end
+
+  # Checks whether the key is in the hash map.
+  def key?(key)
+    !!get(key)
+  end
+
+  private
+
+  # Returns index of the key.
+  def get_index(key)
+    index = hash(key) % capacity
+    raise IndexError if index.negative? || index >= @buckets.length
+
+    index
   end
 end

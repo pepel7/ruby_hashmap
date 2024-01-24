@@ -77,6 +77,22 @@ class LinkedList
     end
   end
 
+  def each
+    cursor = head
+    index = 0
+    until cursor.nil?
+      yield(cursor)
+
+      cursor = cursor.next_node
+      index += 1
+    end
+    self
+  end
+
+  def find_enum
+    self.each { |node| break node if yield(node) }
+  end
+
   def to_s
     cursor = head
     string = ''
