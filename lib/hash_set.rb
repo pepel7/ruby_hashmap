@@ -1,6 +1,6 @@
 require_relative './linked_list'
 
-class HashMap
+class HashSet
   attr_reader :buckets, :capacity, :load_factor
 
   def initialize
@@ -27,13 +27,13 @@ class HashMap
   end
 
   # Adds a new value for the key.
-  def set(key, value)
+  def set(key)
     filled_percentage = filled_buckets_percentage
     grow_buckets if filled_percentage >= load_factor
 
     index = get_index(key)
 
-    buckets[index].append([key, value])
+    buckets[index].append(key)
   end
 
   # Calculates percentage of filled buckets.
@@ -43,12 +43,12 @@ class HashMap
     (filled_buckets / capacity.to_f * 100) / 100
   end
 
-  # Returns the number of stored keys in the hash map.
+  # Returns the number of stored keys in the hash set.
   def length
     buckets.sum(&:size)
   end
 
-  # Increases the hash map capacity by 2.
+  # Increases the hash set capacity by 2.
   def grow_buckets
     old_buckets = buckets
     new_buckets = Array.new(capacity * 2) { LinkedList.new }
@@ -68,10 +68,10 @@ class HashMap
     index = get_index(key)
     return nil if buckets[index].empty?
 
-    buckets[index].find_enum { |node| node.value[0] == key }.value[1]
+    buckets[index].find_enum { |node| node.value == key }.value
   end
 
-  # Checks whether the key is in the hash map.
+  # Checks whether the key is in the hash set.
   def key?(key)
     !!get(key)
   end
@@ -82,28 +82,28 @@ class HashMap
     return nil if buckets[index].empty?
 
     buckets[index].each do |node, i|
-      break buckets[index].remove_at(i) if node.value[0] == key
+      break buckets[index].remove_at(i) if node.value == key
     end
   end
 
-  # Removes all entries in the hash map.
+  # Removes all entries in the hash set.
   def clear
     initialize
   end
 
-  # Returns an array containing all the keys inside the hash map.
+  # Returns an array containing all the keys inside the hash set.
   def keys
-    collect_all { |node| node.value[0] }
-  end
+    buckets.reduce([]) do |all, bucket|
+      next all if bucket.empty?
 
-  # Returns an array containing all the values inside the hash map.
-  def values
-    collect_all { |node| node.value[1] }
-  end
+      this_bucket_keys = []
 
-  # Returns an array that contains each `key, value` pair.
-  def entries
-    collect_all(&:value)
+      bucket.each do |node|
+        this_bucket_keys << node.value
+      end
+
+      all + this_bucket_keys
+    end
   end
 
   private
@@ -114,20 +114,5 @@ class HashMap
     raise IndexError if index.negative? || index >= @buckets.length
 
     index
-  end
-
-  # Collects all things you pass.
-  def collect_all
-    buckets.reduce([]) do |all, bucket|
-      next all if bucket.empty?
-
-      this_bucket_things = []
-
-      bucket.each do |node|
-        this_bucket_things << yield(node)
-      end
-
-      all + this_bucket_things
-    end
   end
 end
