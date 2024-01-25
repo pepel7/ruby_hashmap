@@ -38,10 +38,14 @@ class HashMap
 
   # Calculates percentage of filled buckets.
   def filled_buckets_percentage
-    filled_buckets = buckets.filter { |b| !b.empty? }.length
-
+    filled_buckets = length
     # divide by 100 at the end to preserve the style of the load factor
     (filled_buckets / capacity.to_f * 100) / 100
+  end
+
+  # Returns the number of stored keys in the hash map.
+  def length
+    buckets.sum(&:size)
   end
 
   # Increases the hash map capacity by 2.
@@ -70,6 +74,36 @@ class HashMap
   # Checks whether the key is in the hash map.
   def key?(key)
     !!get(key)
+  end
+
+  # Removes and returns the key if it exists.
+  def remove(key)
+    index = get_index(key)
+    return nil if buckets[index].empty?
+
+    buckets[index].each do |node, i|
+      break buckets[index].remove_at(i) if node.value[0] == key
+    end
+  end
+
+  # Removes all entries in the hash map.
+  def clear
+    initialize
+  end
+
+  # Returns an array containing all the keys inside the hash map.
+  def keys
+    buckets.reduce([]) do |arr, bucket|
+      next arr if bucket.empty?
+
+      this_bucket_keys = []
+
+      bucket.each do |node|
+        this_bucket_keys << node.value[0]
+      end
+
+      arr + this_bucket_keys
+    end
   end
 
   private

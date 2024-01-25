@@ -27,7 +27,7 @@ class LinkedList
     self.size.zero?
   end
 
-  # returns the last node
+  # Returns the last node.
   def tail
     return nil if size.zero?
 
@@ -48,9 +48,14 @@ class LinkedList
 
   def pop
     return 'error: the list is empty' if size.zero?
+    if size == 1
+      popped = head
+      @head = nil
+      return popped
+    end
 
     cursor = head
-    cursor = cursor.next_node until cursor.next_node.next_node.nil?
+    cursor = cursor.next_node until cursor.next_node == tail
     popped = cursor.next_node
     cursor.next_node = nil
     popped
@@ -81,7 +86,7 @@ class LinkedList
     cursor = head
     index = 0
     until cursor.nil?
-      yield(cursor)
+      yield(cursor, index)
 
       cursor = cursor.next_node
       index += 1
@@ -90,7 +95,7 @@ class LinkedList
   end
 
   def find_enum
-    self.each { |node| break node if yield(node) }
+    each { |node| break node if yield(node) }
   end
 
   def to_s
@@ -120,7 +125,7 @@ class LinkedList
   def remove_at(index)
     return 'error: the list is shorter than the given index' if index >= size
     return 'error: there is nothing to remove in the list' if size.zero?
-    return pop(index) if index == size - 1
+    return pop if index == size - 1
 
     cursor = head
     (index - 1).times do
