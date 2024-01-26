@@ -1,7 +1,7 @@
-require_relative './lib/hash_map'
-require_relative './lib/hash_set'
+require './lib/hash_map'
+require './lib/hash_set'
 
-test = HasMap.new
+test = HashMap.new
 
-test.set('pear', 'green')
-test.set('lemon', 'yellow')
+test['pear'] = 'green'
+test['lemon'] = 'yellow'

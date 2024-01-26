@@ -47,7 +47,8 @@ class LinkedList
   end
 
   def pop
-    return 'error: the list is empty' if size.zero?
+    return 'error: the list is empty' if empty?
+
     if size == 1
       popped = head
       @head = nil
